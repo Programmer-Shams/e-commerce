@@ -34,7 +34,6 @@ const AccountForm: React.FC = () => {
 
   const password = useRef({})
   password.current = watch('password', '')
-
   const router = useRouter()
 
   const onSubmit = useCallback(

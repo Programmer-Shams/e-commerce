@@ -33,10 +33,11 @@ const FooterComponent = ({ footer }: { footer: Footer }) => {
         <Gutter>
           <div className={classes.wrap}>
             <Link href="/">
-              <Image src="/logo-white.svg" alt="log" width={170} height={50} />
+            <h4 style={{color: 'white', fontFamily: "monospace", fontWeight: 900}}>SwiftTech💻</h4>
             </Link>
             <p>{footer.copyright}</p>
             <div className={classes.socialLinks}>
+              
               {navItems.map(item => {
                 const icon = item?.link?.icon as Media
                 return (

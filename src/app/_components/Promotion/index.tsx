@@ -1,6 +1,8 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import classes from './index.module.scss'
+import Image from 'next/image'
+import Link from 'next/link'
 const Promotion = () => {
     const [time, setTime] = useState({
         days: 0,
@@ -49,6 +51,14 @@ const Promotion = () => {
             <StartBox label="Seconds" value={time.seconds} />
         </ul>
       </div>
+      <Link href="/products">
+          <Image
+            src="/assets/images/image-4.svg"
+            alt="Promotion"
+            width={1000}
+            height={1000}
+          />
+          </Link>
     </section>
   )
 }

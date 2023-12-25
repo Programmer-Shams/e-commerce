@@ -20,7 +20,7 @@ const Filter = ({ categories }: { categories: Category[] }) => {
     <div className={classes.filters}>
       <div>
         <h6 className={classes.title}>Product Categorys</h6>
-        <div className={classes.categoris}>
+        <div className={classes.check}>
           {categories.map(category => {
             const isSelected = categoryFilters.includes(category.id)
             return (

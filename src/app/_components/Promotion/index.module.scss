@@ -41,7 +41,7 @@
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(4, 100px);
-
+  font-weight: 900;
   @include large-break {
     grid-template-columns: repeat(2, 1fr);
   }
