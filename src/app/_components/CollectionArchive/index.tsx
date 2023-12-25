@@ -11,6 +11,7 @@ import { PageRange } from '../PageRange'
 import { Pagination } from '../Pagination'
 
 import classes from './index.module.scss'
+import { useFilter } from '../../_providers/Filter'
 
 type Result = {
   docs: Product[]
@@ -38,8 +39,8 @@ export type Props = {
 }
 
 export const CollectionArchive: React.FC<Props> = props => {
+  const { categoryFilters, sort } = useFilter()
   const {
-    categories: catsFromProps,
     className,
     limit = 10,
     onResultChange,
@@ -49,33 +50,24 @@ export const CollectionArchive: React.FC<Props> = props => {
     relationTo,
     selectedDocs,
     showPageRange,
-    sort = '-createdAt',
   } = props
 
   const [results, setResults] = useState<Result>({
-    docs: (populateBy === 'collection'
-      ? populatedDocs
-      : populateBy === 'selection'
-      ? selectedDocs
-      : []
-    )?.map(doc => doc.value),
-    hasNextPage: false,
-    hasPrevPage: false,
-    nextPage: 1,
-    page: 1,
-    prevPage: 1,
     totalDocs: typeof populatedDocsTotal === 'number' ? populatedDocsTotal : 0,
+    docs: (populatedDocs?.map(doc => doc.value) || []) as [],
+    page: 1,
     totalPages: 1,
+    hasPrevPage: false,
+    hasNextPage: false,
+    prevPage: 1,
+    nextPage: 1,
   })
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | undefined>(undefined)
   const scrollRef = useRef<HTMLDivElement>(null)
   const hasHydrated = useRef(false)
-  const isRequesting = useRef(false)
   const [page, setPage] = useState(1)
-
-  const categories = (catsFromProps || []).map(cat => cat.id).join(',')
 
   const scrollToRef = useCallback(() => {
     const { current } = scrollRef
@@ -93,35 +85,33 @@ export const CollectionArchive: React.FC<Props> = props => {
   }, [isLoading, scrollToRef, results])
 
   useEffect(() => {
-    let timer: NodeJS.Timeout = null
-
-    if (populateBy === 'collection' && !isRequesting.current) {
-      isRequesting.current = true
-
-      // hydrate the block with fresh content after first render
-      // don't show loader unless the request takes longer than x ms
-      // and don't show it during initial hydration
-      timer = setTimeout(() => {
-        if (hasHydrated.current) {
-          setIsLoading(true)
-        }
-      }, 500)
+    // hydrate the block with fresh content after first render
+    // don't show loader unless the request takes longer than x ms
+    // and don't show it during initial hydration
+    const timer: NodeJS.Timeout = setTimeout(() => {
+      if (hasHydrated) {
+        setIsLoading(true)
+      }
+    }, 500)
 
       const searchQuery = qs.stringify(
         {
-          depth: 1,
-          limit,
-          page,
           sort,
           where: {
-            ...(categories
+            ...(categoryFilters && categoryFilters?.length > 0
               ? {
                   categories: {
-                    in: categories,
+                    in:
+                      typeof categoryFilters === 'string'
+                        ? [categoryFilters]
+                        : categoryFilters.map((cat: string) => cat).join(','),
                   },
                 }
               : {}),
           },
+          limit,
+          page,
+          depth: 1,
         },
         { encode: false },
       )
@@ -131,12 +121,12 @@ export const CollectionArchive: React.FC<Props> = props => {
           const req = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL}/api/${relationTo}?${searchQuery}`,
           )
-
           const json = await req.json()
           clearTimeout(timer)
-
+          hasHydrated.current = true
+  
           const { docs } = json as { docs: Product[] }
-
+  
           if (docs && Array.isArray(docs)) {
             setResults(json)
             setIsLoading(false)
@@ -149,26 +139,21 @@ export const CollectionArchive: React.FC<Props> = props => {
           setIsLoading(false)
           setError(`Unable to load "${relationTo} archive" data at this time.`)
         }
-
-        isRequesting.current = false
-        hasHydrated.current = true
       }
-
-      void makeRequest()
-    }
-
-    return () => {
-      if (timer) clearTimeout(timer)
-    }
-  }, [page, categories, relationTo, onResultChange, sort, limit, populateBy])
+  
+      makeRequest()
+  
+      return () => {
+        if (timer) clearTimeout(timer)
+      }
+    }, [page, categoryFilters, relationTo, onResultChange, sort, limit])
 
   return (
     <div className={[classes.collectionArchive, className].filter(Boolean).join(' ')}>
       <div className={classes.scrollRef} ref={scrollRef} />
-      {!isLoading && error && <Gutter>{error}</Gutter>}
+      {!isLoading && error && <div>{error}</div>}
       <Fragment>
         {showPageRange !== false && populateBy !== 'selection' && (
-          <Gutter>
             <div className={classes.pageRange}>
               <PageRange
                 collection={relationTo}
@@ -177,15 +162,11 @@ export const CollectionArchive: React.FC<Props> = props => {
                 totalDocs={results.totalDocs}
               />
             </div>
-          </Gutter>
         )}
-        <Gutter>
           <div className={classes.grid}>
             {results.docs?.map((result, index) => {
               return (
-                <div className={classes.column} key={index}>
                   <Card doc={result} relationTo={relationTo} showCategories />
-                </div>
               )
             })}
           </div>
@@ -197,7 +178,6 @@ export const CollectionArchive: React.FC<Props> = props => {
               totalPages={results.totalPages}
             />
           )}
-        </Gutter>
       </Fragment>
     </div>
   )
