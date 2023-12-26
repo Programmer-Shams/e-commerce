@@ -53,9 +53,7 @@ export const cartPage: Partial<Page> = {
           },
           richText: [
             {
-              children: [
-             
-              ],
+              children: [],
             },
           ],
         },

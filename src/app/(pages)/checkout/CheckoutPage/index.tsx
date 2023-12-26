@@ -15,7 +15,6 @@ import { useTheme } from '../../../_providers/Theme'
 import cssVariables from '../../../cssVariables'
 import { CheckoutForm } from '../CheckoutForm'
 
-
 import classes from './index.module.scss'
 import { CheckoutItem } from '../CheckoutItem'
 

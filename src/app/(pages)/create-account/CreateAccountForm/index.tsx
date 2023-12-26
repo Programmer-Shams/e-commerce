@@ -63,7 +63,7 @@ const CreateAccountForm: React.FC = () => {
         await login(data)
         clearTimeout(timer)
         if (redirect) router.push(redirect as string)
-        else router.push('/');
+        else router.push('/')
         window.location.href = '/'
       } catch (_) {
         clearTimeout(timer)

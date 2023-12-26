@@ -94,59 +94,59 @@ export const CollectionArchive: React.FC<Props> = props => {
       }
     }, 500)
 
-      const searchQuery = qs.stringify(
-        {
-          sort,
-          where: {
-            ...(categoryFilters && categoryFilters?.length > 0
-              ? {
-                  categories: {
-                    in:
-                      typeof categoryFilters === 'string'
-                        ? [categoryFilters]
-                        : categoryFilters.map((cat: string) => cat).join(','),
-                  },
-                }
-              : {}),
-          },
-          limit,
-          page,
-          depth: 1,
+    const searchQuery = qs.stringify(
+      {
+        sort,
+        where: {
+          ...(categoryFilters && categoryFilters?.length > 0
+            ? {
+                categories: {
+                  in:
+                    typeof categoryFilters === 'string'
+                      ? [categoryFilters]
+                      : categoryFilters.map((cat: string) => cat).join(','),
+                },
+              }
+            : {}),
         },
-        { encode: false },
-      )
+        limit,
+        page,
+        depth: 1,
+      },
+      { encode: false },
+    )
 
-      const makeRequest = async () => {
-        try {
-          const req = await fetch(
-            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/${relationTo}?${searchQuery}`,
-          )
-          const json = await req.json()
-          clearTimeout(timer)
-          hasHydrated.current = true
-  
-          const { docs } = json as { docs: Product[] }
-  
-          if (docs && Array.isArray(docs)) {
-            setResults(json)
-            setIsLoading(false)
-            if (typeof onResultChange === 'function') {
-              onResultChange(json)
-            }
-          }
-        } catch (err) {
-          console.warn(err) // eslint-disable-line no-console
+    const makeRequest = async () => {
+      try {
+        const req = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/${relationTo}?${searchQuery}`,
+        )
+        const json = await req.json()
+        clearTimeout(timer)
+        hasHydrated.current = true
+
+        const { docs } = json as { docs: Product[] }
+
+        if (docs && Array.isArray(docs)) {
+          setResults(json)
           setIsLoading(false)
-          setError(`Unable to load "${relationTo} archive" data at this time.`)
+          if (typeof onResultChange === 'function') {
+            onResultChange(json)
+          }
         }
+      } catch (err) {
+        console.warn(err) // eslint-disable-line no-console
+        setIsLoading(false)
+        setError(`Unable to load "${relationTo} archive" data at this time.`)
       }
-  
-      makeRequest()
-  
-      return () => {
-        if (timer) clearTimeout(timer)
-      }
-    }, [page, categoryFilters, relationTo, onResultChange, sort, limit])
+    }
+
+    makeRequest()
+
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
+  }, [page, categoryFilters, relationTo, onResultChange, sort, limit])
 
   return (
     <div className={[classes.collectionArchive, className].filter(Boolean).join(' ')}>
@@ -154,30 +154,28 @@ export const CollectionArchive: React.FC<Props> = props => {
       {!isLoading && error && <div>{error}</div>}
       <Fragment>
         {showPageRange !== false && populateBy !== 'selection' && (
-            <div className={classes.pageRange}>
-              <PageRange
-                collection={relationTo}
-                currentPage={results.page}
-                limit={limit}
-                totalDocs={results.totalDocs}
-              />
-            </div>
-        )}
-          <div className={classes.grid}>
-            {results.docs?.map((result, index) => {
-              return (
-                  <Card doc={result} relationTo={relationTo} showCategories />
-              )
-            })}
-          </div>
-          {results.totalPages > 1 && populateBy !== 'selection' && (
-            <Pagination
-              className={classes.pagination}
-              onClick={setPage}
-              page={results.page}
-              totalPages={results.totalPages}
+          <div className={classes.pageRange}>
+            <PageRange
+              collection={relationTo}
+              currentPage={results.page}
+              limit={limit}
+              totalDocs={results.totalDocs}
             />
-          )}
+          </div>
+        )}
+        <div className={classes.grid}>
+          {results.docs?.map((result, index) => {
+            return <Card doc={result} relationTo={relationTo} showCategories />
+          })}
+        </div>
+        {results.totalPages > 1 && populateBy !== 'selection' && (
+          <Pagination
+            className={classes.pagination}
+            onClick={setPage}
+            page={results.page}
+            totalPages={results.totalPages}
+          />
+        )}
       </Fragment>
     </div>
   )

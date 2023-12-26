@@ -1,15 +1,15 @@
-"use client";
+'use client'
 import { Category } from '../../../../payload/payload-types'
 import { Checkbox } from '../../../_components/Checkbox/page'
-import { HR } from '../../../_components/HR';
-import { RadioButton } from '../../../_components/RadioButton/page';
+import { HR } from '../../../_components/HR'
+import { RadioButton } from '../../../_components/RadioButton/page'
 import { useFilter } from '../../../_providers/Filter'
 import classes from './index.module.scss'
 const Filter = ({ categories }: { categories: Category[] }) => {
   const { categoryFilters, sort, setCategoryFilters, setSort } = useFilter()
-  const handleCategories  = (categoryId: string) => {
+  const handleCategories = (categoryId: string) => {
     if (categoryFilters.includes(categoryId)) {
-      const updatedCategories = (categoryFilters.filter(id => id !== categoryId))
+      const updatedCategories = categoryFilters.filter(id => id !== categoryId)
       setCategoryFilters(updatedCategories)
     } else {
       setCategoryFilters([...categoryFilters, categoryId])
@@ -29,7 +29,7 @@ const Filter = ({ categories }: { categories: Category[] }) => {
                 label={category.title}
                 value={category.id}
                 isSelected={isSelected}
-                onClickHandler = {handleCategories}
+                onClickHandler={handleCategories}
               />
             )
           })}
@@ -37,14 +37,14 @@ const Filter = ({ categories }: { categories: Category[] }) => {
         <HR className={classes.hr} />
         <h6 className={classes.title}> Sort By</h6>
         <div className={classes.categories}>
-          <RadioButton 
+          <RadioButton
             label="Latest"
             value="-createdAt"
             isSelected={sort === '-createdAt'}
             onRadioChange={handleSort}
             groupName="sort"
           />
-          <RadioButton 
+          <RadioButton
             label="Oldest"
             value="createdAt"
             isSelected={sort === '-createdAt'}

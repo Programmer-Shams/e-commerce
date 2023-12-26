@@ -27,7 +27,8 @@ export const RelatedProducts: React.FC<RelatedProductsProps> = props => {
 
             return (
               <>
-              <Card key={doc.id} relationTo={relationTo} doc={doc} showCategories />whyy
+                <Card key={doc.id} relationTo={relationTo} doc={doc} showCategories />
+                whyy
               </>
             )
           })}
